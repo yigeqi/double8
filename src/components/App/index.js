@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import { Button } from 'antd'
 import './style.css';
 
 class App extends Component {
@@ -11,6 +12,7 @@ class App extends Component {
           <h2>Welcome to React</h2>
         </div>
         <p className="App-intro">
+          <Button type='primary'>oopppppggg</Button>
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
       </div>
