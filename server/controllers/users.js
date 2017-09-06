@@ -11,9 +11,13 @@ exports.login = (req, res) => {
       return res.sendStatus(500)
     }
     if (user) {
-      const token = jwt.sign({id: username}, 'hahaha', {expiresIn: 24*60*60})
+      const user_id = user._id.toString()
+      const token = jwt.sign({id: user_id}, 'hahaha', {expiresIn: 24*60*60})
       // 有交互时要记得更新这个过期时间
-      redisClient.set(user.username, token, 'EX', 24*60*60)
+      redisClient.set(user_id, token, 'EX', 24*60*60)
+      // 把token存在cookie里发给客户端,设置cookie的有效期为1天,
+      // res.cookie('token',token,{path:'/',maxAge:2*60,httpOnly:true}) // why 2minutes not work
+      res.cookie('token',token,{path:'/',maxAge:24*60*60,httpOnly:true})
       return res.json({token,user})
     } else {
       return res.json({success:false,message:'user not exist or password not right.'})

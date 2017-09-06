@@ -30,31 +30,44 @@ app.use((req,res,next)=>{
   if (['/about','/login','/register'].indexOf(req.path)!==-1 || /\/static\/.*/.test(req.path)) {
     return next()
   }
-  //此处验证token： jwt.verify()
-  var token = req.headers.authorization
-  if (token) {
-    jwt.verify(token, 'hahaha', (err, decoded) => {
-      if (err) {
-        return res.json({success: false, message: 'failed to authenticate token.'+err.message})
-      } else {
-        // 如果user.id存在在redis里面，表示验证通过
-        redisClient.get(decoded.id, (err,reply)=> {
-          if (err) {
-            return res.json({success: false, message: 'get token from redis failed:'+err.message})
-          } else if (reply===null) {
-            return res.json({success: false, message: 'token is missing in redis.'})
-          } else if (token !== reply) {
-            return res.json({success: false, message: 'token not right.'})
-          } else {
-            req.user = {id: decoded.id,reply}
-            next()
-          }
-        })
-      }
-    })
-  } else {
+  //取cookie中的token
+  var token = ''
+  const cookie = req.headers.cookie
+  console.log(req.path,cookie)
+  if (!cookie) {
+    return res.status(403).send({success:false,message:'no cookie provided'})
+  }
+  const list = cookie.split(';')
+  for (var i=0;i<list.length;i++) {
+    var pair = list[i].split('=')
+    if (pair[0].trim()==='token') {
+      token = pair[1]
+      break
+    }
+  }
+  if (!token) {
     return res.status(403).send({success:false,message:'no token provided'})
   }
+  //通过jwt.verify()验证token是否符合规则
+  jwt.verify(token, 'hahaha', (err, decoded) => {
+    if (err) {
+      return res.status(403).send({success: false, message: 'failed to authenticate token.'+err.message})
+    } else {
+      // 如果token存在在redis里面，表示验证通过
+      redisClient.get(decoded.id, (err,reply)=> {
+        if (err) {
+          return res.json({success: false, message: 'get token from redis failed:'+err.message})
+        } else if (reply===null) {
+          return res.json({success: false, message: 'token is missing in redis.'})
+        } else if (token !== reply) {
+          return res.json({success: false, message: 'token not right.'})
+        } else {
+          req.user = {id: decoded.id,reply}
+          next()
+        }
+      })
+    }
+  })
 })
 app.post("/login", users.login);
 app.post("/register", users.register);
