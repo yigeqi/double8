@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
  const jwt = require('jsonwebtoken')
 const methodOverride = require('method-override')
 const mongoose = require('mongoose')
+mongoose.Promise = global.Promise;
 //本地文件
 var redisClient = require('./db/redis.js')
 const users = require('./controllers/users.js')

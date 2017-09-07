@@ -2,14 +2,11 @@ const UserModel = require('../db/userModel')
 const jwt = require('jsonwebtoken')
 var redisClient = require('../db/redis.js')
 
-exports.login = (req, res) => {
+exports.login = async(req, res) => {
   const username = req.body.username
   const password = req.body.password
-  UserModel.findOne({username}, async (err, user) => {
-    if (err) {
-      console.log(err)
-      return res.sendStatus(500)
-    }
+  try {
+    const user = await UserModel.findOne({username})
     if (user) {
       const isSame = await user.comparePassword(password, user.password)
       if (!isSame) {
@@ -26,29 +23,24 @@ exports.login = (req, res) => {
     } else {
       return res.json({success:false,message:'user not exist or password not right.'})
     }
-  })
+  } catch (err) {
+    return res.status(500).send({success:false,message:err.message});
+  }
 }
-exports.register = (req, res) => {
+exports.register = async(req, res) => {
   const username = req.body.username
   const password = req.body.password
-  UserModel.findOne({username}, (err, user) => {
-    if (err) {
-      console.log(err)
-      return res.sendStatus(500)
-    }
+  try {
+    const user = await UserModel.findOne({username})
     if (user) {
       return res.json({success:false,message:'user already exist.'})
-    } else {
-      var newuser = new UserModel({username,password})
-      newuser.save(err => {
-        if (err) {
-          console.log(err)
-          return res.status(500).send({success:false,message:err.message})
-        }
-        return res.sendStatus(200)
-      })
     }
-  })
+    var newuser = new UserModel({username,password})
+    await newuser.save()
+    return res.sendStatus(200)
+  } catch (err) {
+    return res.status(500).send({success:false,message:err.message})
+  }
 }
 exports.logout = (req, res) => {
   if (req.user) {
@@ -56,6 +48,6 @@ exports.logout = (req, res) => {
     delete req.user;  
     return res.sendStatus(200);
   } else {
-    return res.status(403).send({success:false,message:'no token provided'});
+    return res.status(403).send({success:false,message:'no token provided'})
   }
 }
