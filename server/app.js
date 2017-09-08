@@ -7,7 +7,8 @@ const methodOverride = require('method-override')
 const mongoose = require('mongoose')
 mongoose.Promise = global.Promise;
 //本地文件
-var redisClient = require('./db/redis.js')
+const redisClient = require('./db/redis.js')
+const config = require('./config')
 const users = require('./controllers/users.js')
 
 // 连接数据库
@@ -28,7 +29,11 @@ app.use(express.static(path.resolve(__dirname, '..', 'build')))
 
 app.use(router)
 app.use((req,res,next)=>{
-  if (['/about','/login','/register'].indexOf(req.path)!==-1 || /\/static\/.*/.test(req.path)) {
+  res.header('Access-Control-Allow-Origin','http://192.168.27.99:3000')
+  res.header('Access-Control-Allow-Credentials',true)
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+  if (['/','/login','/register'].indexOf(req.path)!==-1 || /\/static\/.*/.test(req.path)) {
     return next()
   }
   //取cookie中的token
@@ -63,7 +68,10 @@ app.use((req,res,next)=>{
         } else if (token !== reply) {
           return res.json({success: false, message: 'token not right.'})
         } else {
-          req.user = {id: decoded.id,reply}
+          // req.user = {id: decoded.id,reply}
+          //更新有效期
+          redisClient.set(decoded.id, token, 'EX', config.expire)
+          res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})
           next()
         }
       })
@@ -74,10 +82,10 @@ app.post("/login", users.login);
 app.post("/register", users.register);
 app.get("/logout", users.logout);
 app.get('/justtest', (req,res) => {
-  console.log(req.user)
+  // console.log(req.user)
   res.sendStatus(200)
 })
-app.get('/about', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
 })
 
