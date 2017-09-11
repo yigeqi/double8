@@ -1,20 +1,24 @@
 import React, { Component } from 'react'
-import {Dropdown, Menu, Icon} from 'antd'
+import {connect} from 'react-redux'
+import {Dropdown, Menu, Icon, Avatar} from 'antd'
+import LoginModal from './modals/LoginModal'
 import ChangePwdModal from './modals/ChangePwdModal'
+import {showModal} from '../actions/component'
+import {logout} from '../actions/user'
 
 class User extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      showModal: false
+  // constructor (props) {
+  //   super(props)
+  // }
+  async clickUser (e) {
+    if (e.key==='changePwd') {
+      this.props.dispatch(showModal('ChangePwdModal'))
+    } else {
+      await this.props.dispatch(logout())
     }
   }
-  clickUser (e) {
-    if (e.key==='changePwd') {
-      this.setState({showModal:true})
-    } else {
-
-    }
+  showLoginModal () {
+    this.props.dispatch(showModal('LoginModal'))
   }
   render() {
     const menu = (
@@ -25,15 +29,21 @@ class User extends Component {
     )
     return (
       <div className='alignR'>
+        {this.props.user.username?
         <Dropdown overlay={menu}>
           <a className='ant-dropdown-link'>
-            <Icon type='smile-o' style={{ fontSize: 16, color: '#08c' }} />当前账号：xxx<Icon type="down" />
+            <Avatar icon="user" src={this.props.user.avatar}/>当前账号：{this.props.user.username}<Icon type="down" />
           </a>
-        </Dropdown>
-        <ChangePwdModal closeFun={()=>this.setState({showModal:false})} visible={this.state.showModal}/>
+        </Dropdown>:<span onClick={()=>this.showLoginModal()}><Avatar icon="user"/>当前账号：请先登录</span>}
+        <LoginModal/>
+        <ChangePwdModal/>
       </div>
     );
   }
 }
 
-export default User;
+export default connect((state)=>{
+  return {
+    user: state.user
+  }
+})(User);

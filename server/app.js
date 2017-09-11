@@ -68,11 +68,15 @@ app.use((req,res,next)=>{
         } else if (token !== reply) {
           return res.json({success: false, message: 'token not right.'})
         } else {
-          // req.user = {id: decoded.id,reply}
-          //更新有效期
-          redisClient.set(decoded.id, token, 'EX', config.expire)
-          res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})
-          next()
+          if (req.path==='/logout') {
+            redisClient.set(decoded.id, token, 'EX', 1)
+            next()
+          } else {
+            //更新有效期
+            redisClient.set(decoded.id, token, 'EX', config.expire)
+            res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})
+            next()
+          }
         }
       })
     }
@@ -82,7 +86,6 @@ app.post("/login", users.login);
 app.post("/register", users.register);
 app.get("/logout", users.logout);
 app.get('/justtest', (req,res) => {
-  // console.log(req.user)
   res.sendStatus(200)
 })
 app.get('/', (req, res) => {

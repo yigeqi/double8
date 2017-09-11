@@ -42,11 +42,5 @@ exports.register = async(req, res) => {
   }
 }
 exports.logout = (req, res) => {
-  if (req.user) {
-    redisClient.set(req.user.id, req.user.token, 'EX', 1)
-    delete req.user;  
-    return res.sendStatus(200);
-  } else {
-    return res.status(403).send({success:false,message:'no token provided'})
-  }
+  return res.sendStatus(200);
 }

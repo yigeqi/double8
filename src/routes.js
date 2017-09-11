@@ -9,7 +9,6 @@ import NotFound from './components/NotFound';
 import ChatRoom from './components/ChatRoom'
 import User from './components/User'
 import { Row, Col, Menu, Icon } from 'antd'
-
 import createBrowserHistory from 'history/createBrowserHistory'
 const history = createBrowserHistory()
 
@@ -25,7 +24,6 @@ class Routes extends Component {
     this.setState({
       current: e.key
     })
-    console.log(e.key)
     if (e.key === 'nav1') {
       history.push('/')
     } else if (e.key === 'setting:1') {
