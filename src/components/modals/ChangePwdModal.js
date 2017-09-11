@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import {Modal} from 'antd'
-import {showModal} from '../../actions/component'
+import {showModal} from 'actions/component'
 class ChangePwdModal extends Component {
   constructor (props) {
     super(props)

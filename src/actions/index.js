@@ -1,4 +1,4 @@
-import api from '../api'
+import api from 'api'
 
 let nextTodoId = 0
 export const addTodo = text => {

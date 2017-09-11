@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import {Dropdown, Menu, Icon, Avatar} from 'antd'
-import LoginModal from './modals/LoginModal'
-import ChangePwdModal from './modals/ChangePwdModal'
-import {showModal} from '../actions/component'
-import {logout} from '../actions/user'
+import LoginModal from 'modals/LoginModal'
+import ChangePwdModal from 'modals/ChangePwdModal'
+import {showModal} from 'actions/component'
+import {logout} from 'actions/user'
 
 class User extends Component {
   // constructor (props) {

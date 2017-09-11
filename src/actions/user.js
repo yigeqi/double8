@@ -1,5 +1,5 @@
 import {message} from 'antd'
-import api from '../api'
+import api from 'api'
 
 const setUserInfo = (info) => {
   return {

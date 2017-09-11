@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import {Modal,Spin,Form, Icon, Input, Button, Checkbox} from 'antd'
-import {login} from '../../actions/user'
-import {showModal} from '../../actions/component'
+import {login} from 'actions/user'
+import {showModal} from 'actions/component'
 
 class LoginModal extends Component {
   constructor (props) {

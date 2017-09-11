@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Router, Switch, Route } from 'react-router-dom'
 // import { Link, Router, Switch, Route } from 'react-router-dom'
-import Footer from './components/Footer';
-import App from './components/App';
-import About from './components/About';
-import AboutTwo from './components/AboutTwo';
-import NotFound from './components/NotFound';
-import ChatRoom from './components/ChatRoom'
-import User from './components/User'
+import Footer from 'components/Footer';
+import App from 'components/App';
+import About from 'components/About';
+import AboutTwo from 'components/AboutTwo';
+import NotFound from 'components/NotFound';
+import ChatRoom from 'components/ChatRoom'
+import User from 'components/User'
 import { Row, Col, Menu, Icon } from 'antd'
 import createBrowserHistory from 'history/createBrowserHistory'
 const history = createBrowserHistory()

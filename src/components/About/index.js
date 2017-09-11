@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './style.less';
-import api from '../../api'
+import api from 'api'
 // import { connect } from 'react-redux'
-import {login } from '../../actions/user'
+import {login } from 'actions/user'
 
 class About extends Component {
   async test1 () {
