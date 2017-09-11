@@ -1,5 +1,6 @@
 import {message} from 'antd'
 import api from 'api'
+import {myLocalStorage} from 'utils'
 
 const setUserInfo = (info) => {
   return {
@@ -16,9 +17,10 @@ const removeUserInfo = () => {
 export const login = ({username,password}) => {
   return async(dispatch, getState) => {
     const resp = await api.login(username,password)
-    dispatch(setUserInfo(resp.user))
+    dispatch(setUserInfo(resp))
     message.destroy()
     if (resp.success!==false) {
+      myLocalStorage.set('ls_userInfo',resp)
       message.success('登录成功')
     } else {
       message.warning(`登录失败${resp.message}`,5)
@@ -28,6 +30,7 @@ export const login = ({username,password}) => {
 export const logout = () => {
   return async (dispatch) => {
     await api.logout()
+    myLocalStorage.remove('ls_userInfo')
     dispatch(removeUserInfo())
   }
 }

@@ -41,7 +41,7 @@ app.use((req,res,next)=>{
   const cookie = req.headers.cookie
   console.log(req.path,cookie)
   if (!cookie) {
-    return res.status(403).send({success:false,message:'no cookie provided'})
+    return res.status(401).send({success:false,message:'no cookie provided'})
   }
   const list = cookie.split(';')
   for (var i=0;i<list.length;i++) {
@@ -52,12 +52,12 @@ app.use((req,res,next)=>{
     }
   }
   if (!token) {
-    return res.status(403).send({success:false,message:'no token provided'})
+    return res.status(401).send({success:false,message:'no token provided'})
   }
   //通过jwt.verify()验证token是否符合规则
   jwt.verify(token, 'hahaha', (err, decoded) => {
     if (err) {
-      return res.status(403).send({success: false, message: 'failed to authenticate token.'+err.message})
+      return res.status(401).send({success: false, message: 'failed to authenticate token.'+err.message})
     } else {
       // 如果token存在在redis里面，表示验证通过
       redisClient.get(decoded.id, (err,reply)=> {
@@ -69,7 +69,8 @@ app.use((req,res,next)=>{
           return res.json({success: false, message: 'token not right.'})
         } else {
           if (req.path==='/logout') {
-            redisClient.set(decoded.id, token, 'EX', 1)
+            redisClient.set(decoded.id, token, 'EX', 0)
+            res.clearCookie('token',{path:'/'})
             next()
           } else {
             //更新有效期

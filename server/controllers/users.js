@@ -18,7 +18,7 @@ exports.login = async(req, res) => {
       redisClient.set(user_id, token, 'EX', config.expire)
       // 把token存在cookie里发给客户端,设置cookie的有效期
       res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})
-      return res.json({user})
+      return res.json({username:user.username})
     } else {
       return res.json({success:false,message:'user not exist or password not right.'})
     }

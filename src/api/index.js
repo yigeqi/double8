@@ -1,5 +1,7 @@
 import axios from 'axios'
 import config from 'config'
+import store from 'src/store'
+import {showModal} from 'actions/component'
 import {message} from 'antd'
 
 const instance = axios.create({
@@ -18,6 +20,12 @@ instance.interceptors.response.use(rep=>{
   console.log('hide progress')
   return rep
 },err=>{
+  if (err.response && err.response.status === 401) {
+    console.log('401!')
+    store.dispatch(showModal('LoginModal'))
+    message.error('请先登录')
+    return err.response
+  }
   let msg = err.message
   if (err.response) {
     msg = msg + ','+err.response.data.message
