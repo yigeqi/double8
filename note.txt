@@ -1,1 +1,8 @@
-前端刷新后检测登录状态
+
+//用jsonwebtoken生成token,存入cookie和redis,实现登录和注销接口
+//用bcrypt给用户密码加密后再存入db
+//webpack设置路径变量，取消import ... from '../../actions'的写法
+//前端刷新后检测登录状态
+build区分dev和prod环境
+提取出server中的配置项
+引入socket.io

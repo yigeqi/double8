@@ -1,7 +1,6 @@
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
-// const jwt = require('express-jwt')
  const jwt = require('jsonwebtoken')
 const methodOverride = require('method-override')
 const mongoose = require('mongoose')
@@ -22,7 +21,6 @@ const router = express.Router()
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-// app.use(jwt({secret:'hahaha'}).unless({path:['/about',/\/static\/.*/,'/login','/register']}))
 app.use(methodOverride())
 
 app.use(express.static(path.resolve(__dirname, '..', 'build')))

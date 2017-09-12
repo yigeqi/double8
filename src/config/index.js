@@ -1,5 +1,5 @@
 const config = {
-  dev: {
+  development: {
     baseURL:'http://192.168.27.99:8080',
     path: {
       login:'/login',
@@ -7,9 +7,13 @@ const config = {
       register:'/register'
     }
   },
-  prod: {
-
+  production: {
+    baseURL:'http://192.168.27.99:8080',
+    path: {
+      login:'/login',
+      logout:'/logout',
+      register:'/register'
+    }
   }
 }
-
-export default config['dev']
+export default config[process.env.NODE_ENV]
