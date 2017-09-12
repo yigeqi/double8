@@ -5,6 +5,7 @@
 //前端刷新后检测登录状态
 //build区分dev和prod环境
 //防止跨站请求伪造CSRF
+要不要保存密码在localStorage中，实现自动登录，不安全，怎样安全的实现自动登录？
 提取出server中的配置项
 设置server端缓存
 引入socket.io

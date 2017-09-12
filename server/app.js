@@ -32,7 +32,7 @@ app.use((req,res,next)=>{
   }
   // 为了允许跨域，server端：'Access-Control-Allow-Origin','some domain',Access-Control-Allow-Credentials',true
   // client端： withCredentials:true
-  // 安全策略，不允许'Access-Control-Allow-Origin','*'同时credentials:true
+  // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名：
   // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，在
   // 设置req.header('Access-Control-Allow-Origin',req.headers.origin)
   res.header('Access-Control-Allow-Origin','http://192.168.27.99:3000')
