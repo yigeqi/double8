@@ -6,7 +6,7 @@ import {message} from 'antd'
 
 const instance = axios.create({
   baseURL: config.baseURL,
-  withCredentials:true // enable req with cookie
+  withCredentials:true // enable req with cookie，允许跨域请求携带Cookie
 })
 instance.interceptors.request.use(config=>{
   console.log('show progress')

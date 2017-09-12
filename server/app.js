@@ -27,6 +27,14 @@ app.use(express.static(path.resolve(__dirname, '..', 'build')))
 
 app.use(router)
 app.use((req,res,next)=>{
+  if (req.headers.origin !== 'http://192.168.27.99:3000') {
+    return res.status(401).send({success: false, message: 'This is a CSRF.'})
+  }
+  // 为了允许跨域，server端：'Access-Control-Allow-Origin','some domain',Access-Control-Allow-Credentials',true
+  // client端： withCredentials:true
+  // 安全策略，不允许'Access-Control-Allow-Origin','*'同时credentials:true
+  // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，在
+  // 设置req.header('Access-Control-Allow-Origin',req.headers.origin)
   res.header('Access-Control-Allow-Origin','http://192.168.27.99:3000')
   res.header('Access-Control-Allow-Credentials',true)
   res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
@@ -34,6 +42,7 @@ app.use((req,res,next)=>{
   if (['/','/login','/register'].indexOf(req.path)!==-1 || /\/static\/.*/.test(req.path)) {
     return next()
   }
+  //根据cookie中的token,解密后取到对应的id,此id就是user_id，就知道是哪个用户提交的请求了
   //取cookie中的token
   var token = ''
   const cookie = req.headers.cookie
@@ -60,11 +69,11 @@ app.use((req,res,next)=>{
       // 如果token存在在redis里面，表示验证通过
       redisClient.get(decoded.id, (err,reply)=> {
         if (err) {
-          return res.json({success: false, message: 'get token from redis failed:'+err.message})
+          return res.status(401).send({success: false, message: 'get token from redis failed:'+err.message})
         } else if (reply===null) {
-          return res.json({success: false, message: 'token is missing in redis.'})
+          return res.status(401).send({success: false, message: 'token is missing in redis.'})
         } else if (token !== reply) {
-          return res.json({success: false, message: 'token not right.'})
+          return res.status(401).send({success: false, message: 'token not right.'})
         } else {
           if (req.path==='/logout') {
             redisClient.set(decoded.id, token, 'EX', 0)
@@ -74,6 +83,8 @@ app.use((req,res,next)=>{
             //更新有效期
             redisClient.set(decoded.id, token, 'EX', config.expire)
             res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})
+            //把用户id存入req给next()用
+            req.userId = decoded.id
             next()
           }
         }
@@ -85,7 +96,8 @@ app.post("/login", users.login);
 app.post("/register", users.register);
 app.get("/logout", users.logout);
 app.get('/justtest', (req,res) => {
-  res.sendStatus(200)
+  // res.sendStatus(200)
+  res.status(200).send({username:'myusername'})
 })
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
