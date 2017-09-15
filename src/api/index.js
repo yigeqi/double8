@@ -27,7 +27,7 @@ instance.interceptors.response.use(rep=>{
     return err.response
   }
   let msg = err.message
-  if (err.response) {
+  if (err.response&&err.response.data) {
     msg = msg + ','+err.response.data.message
   }
   message.error('请求错误，'+msg)

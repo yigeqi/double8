@@ -5,8 +5,14 @@
 //前端刷新后检测登录状态
 //build区分dev和prod环境
 //防止跨站请求伪造CSRF
+//单次大数据量提交造成内存占光的攻击行为
+ontentType是'application/xml'或'multipart/form-data'时,req.body的处理
+请求注销时若没有cookie也不应报错
+发送请求后到接收响应前的loading显示
 要不要保存密码在localStorage中，实现自动登录，不安全，怎样安全的实现自动登录？
 提取出server中的配置项
+gzip压缩
 设置server端缓存
 引入socket.io
 图片上传服务
+从nodejs向别的服务器发出请求

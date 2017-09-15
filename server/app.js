@@ -17,32 +17,42 @@ db.on('error', ()=>{console.log('connection error.')})
 db.once('open', ()=>{console.log('db opened.')})
 
 const app = express()
-const router = express.Router()
-
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
 app.use(methodOverride())
-
 app.use(express.static(path.resolve(__dirname, '..', 'build')))
 
+const router = express.Router()
 app.use(router)
-app.use((req,res,next)=>{
-  if (req.headers.origin !== 'http://192.168.27.99:3000') {
-    return res.status(401).send({success: false, message: 'This is a CSRF.'})
-  }
+
+//通过cookie中的token和redis验证用户身份
+const AuthHandler = (req,res,next) => {
   // 为了允许跨域，server端：'Access-Control-Allow-Origin','some domain',Access-Control-Allow-Credentials',true
   // client端： withCredentials:true
-  // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名：
-  // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，在
-  // 设置req.header('Access-Control-Allow-Origin',req.headers.origin)
+  // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名,
+  // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，再设置req.header('Access-Control-Allow-Origin',req.headers.origin)
   res.header('Access-Control-Allow-Origin','http://192.168.27.99:3000')
   res.header('Access-Control-Allow-Credentials',true)
   res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
   res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+  // 取代body-parser,因为这里req.body的undefined... next()里无法处理
+  const ct = req.headers['content-type'] || ''
+  const contentType = ct.split(';')[0]
+  try {
+    if (contentType === 'application/json') {
+      req.body = JSON.parse(req.rawBody)
+    } else if(contentType === 'application/x-www-form-urlencoded') {
+      req.body = querystring.parse(req.rawBody)
+    } else if (contentType === 'application/xml') {
+      // to be done with 'xml2js' library
+    } else if (contentType === 'multipart/form-data') {
+      // to be done with 'Formidable'
+    }
+  } catch(e) {
+    return res.status(500).send({success:false,message:`Invalid parse,${e.message}`})
+  }
   if (['/','/login','/register'].indexOf(req.path)!==-1 || /\/static\/.*/.test(req.path)) {
     return next()
   }
-  //根据cookie中的token,解密后取到对应的id,此id就是user_id，就知道是哪个用户提交的请求了
+  //根据cookie中的token,解密后取到对应的id,此id就是user._id，就知道是哪个用户提交的请求了
   //取cookie中的token
   var token = ''
   const cookie = req.headers.cookie
@@ -76,7 +86,7 @@ app.use((req,res,next)=>{
           return res.status(401).send({success: false, message: 'token not right.'})
         } else {
           if (req.path==='/logout') {
-            redisClient.set(decoded.id, token, 'EX', 0)
+            redisClient.set(decoded.id, token, 'EX', 1)
             res.clearCookie('token',{path:'/'})
             next()
           } else {
@@ -91,12 +101,43 @@ app.use((req,res,next)=>{
       })
     }
   })
+}
+//防止CSRF以及请求提交的内容过大
+app.use((req,res,next)=>{
+  if (req.headers.origin !== 'http://192.168.27.99:3000') {
+    return res.status(401).send({success: false, message: 'This is a CSRF.'})
+  }
+  var bytes = 5000
+  var received = 0
+  var buffers = []
+  var len = req.headers['content-length'] ? parseInt(req.headers['content-length'],10) : null
+  if (len && len > bytes) {
+    return res.status(413).send({success: false, message: 'request body too large.'})
+  }
+  req.on('data',(chunk)=>{
+    received+=chunk.length
+    if (received > bytes) {
+      res.status(413).send({success: false, message: 'request body too large.'})
+      //停止接收数据
+      req.destroy()
+    } else {
+      buffers.push(chunk)
+    }
+  })
+  //注,对于复杂post请求，因为会有两个请求，第一次options,第二次post，所以会先触发end(received=0),然后是第二次的data和end事件
+  req.on('end',()=>{
+    req.rawBody = Buffer.concat(buffers).toString()
+    received <= bytes && AuthHandler(req,res,next)
+  })
 })
+//req.on('data')要放在app.use(bodyParser....)前面会才能触发事件，
+//因为http解析报头结束后，解析报文内容的时候就会触发data事件
+// app.use(bodyParser.urlencoded({ extended: true }))
+// app.use(bodyParser.json())
 app.post("/login", users.login);
 app.post("/register", users.register);
 app.get("/logout", users.logout);
 app.get('/justtest', (req,res) => {
-  // res.sendStatus(200)
   res.status(200).send({username:'myusername'})
 })
 app.get('/', (req, res) => {
