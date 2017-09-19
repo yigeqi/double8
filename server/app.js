@@ -11,10 +11,9 @@ const config = require('./config')
 const users = require('./controllers/users.js')
 
 // 连接数据库
-mongoose.connect('mongodb://192.168.27.99:27017/double8',{useMongoClient:true})
-const db = mongoose.connection
-db.on('error', ()=>{console.log('connection error.')})
-db.once('open', ()=>{console.log('db opened.')})
+mongoose.createConnection(config.mongodb+'?socketTimeoutMS=90000',{useMongoClient:true})
+.then(()=>{console.log('db connection ok')},(err)=>{console.log('db connection error,'+err.stack)})
+.catch(err=>console.error(err))
 
 const app = express()
 app.use(methodOverride())
@@ -29,7 +28,7 @@ const AuthHandler = (req,res,next) => {
   // client端： withCredentials:true
   // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名,
   // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，再设置req.header('Access-Control-Allow-Origin',req.headers.origin)
-  res.header('Access-Control-Allow-Origin','http://192.168.27.99:3000')
+  res.header('Access-Control-Allow-Origin',allowSite)
   res.header('Access-Control-Allow-Credentials',true)
   res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
   res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
@@ -72,7 +71,7 @@ const AuthHandler = (req,res,next) => {
     return res.status(401).send({success:false,message:'no token provided'})
   }
   //通过jwt.verify()验证token是否符合规则
-  jwt.verify(token, 'hahaha', (err, decoded) => {
+  jwt.verify(token, config.secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({success: false, message: 'failed to authenticate token.'+err.message})
     } else {
@@ -104,19 +103,18 @@ const AuthHandler = (req,res,next) => {
 }
 //防止CSRF以及请求提交的内容过大
 app.use((req,res,next)=>{
-  if (req.headers.origin !== 'http://192.168.27.99:3000') {
+  if (req.headers.origin !== config.allowSite) {
     return res.status(401).send({success: false, message: 'This is a CSRF.'})
   }
-  var bytes = 5000
   var received = 0
   var buffers = []
   var len = req.headers['content-length'] ? parseInt(req.headers['content-length'],10) : null
-  if (len && len > bytes) {
+  if (len && len > config.maxBytes) {
     return res.status(413).send({success: false, message: 'request body too large.'})
   }
   req.on('data',(chunk)=>{
     received+=chunk.length
-    if (received > bytes) {
+    if (received > config.maxBytes) {
       res.status(413).send({success: false, message: 'request body too large.'})
       //停止接收数据
       req.destroy()
@@ -127,13 +125,14 @@ app.use((req,res,next)=>{
   //注,对于复杂post请求，因为会有两个请求，第一次options,第二次post，所以会先触发end(received=0),然后是第二次的data和end事件
   req.on('end',()=>{
     req.rawBody = Buffer.concat(buffers).toString()
-    received <= bytes && AuthHandler(req,res,next)
+    received <= config.maxBytes && AuthHandler(req,res,next)
   })
 })
 //req.on('data')要放在app.use(bodyParser....)前面会才能触发事件，
 //因为http解析报头结束后，解析报文内容的时候就会触发data事件
 // app.use(bodyParser.urlencoded({ extended: true }))
 // app.use(bodyParser.json())
+
 app.post("/login", users.login);
 app.post("/register", users.register);
 app.get("/logout", users.logout);

@@ -14,7 +14,7 @@ exports.login = async(req, res) => {
         return res.json({success:false,message:'password not right'})
       }
       const user_id = user._id.toString()
-      const token = jwt.sign({id: user_id}, 'hahaha')
+      const token = jwt.sign({id: user_id}, config.secret)
       redisClient.set(user_id, token, 'EX', config.expire)
       // 把token存在cookie里发给客户端,设置cookie的有效期
       res.cookie('token',token,{path:'/',maxAge:config.expire*1000,httpOnly:true})

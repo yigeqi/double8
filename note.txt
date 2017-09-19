@@ -10,7 +10,7 @@ ontentType是'application/xml'或'multipart/form-data'时,req.body的处理
 请求注销时若没有cookie也不应报错
 发送请求后到接收响应前的loading显示
 要不要保存密码在localStorage中，实现自动登录，不安全，怎样安全的实现自动登录？
-提取出server中的配置项
+//提取出server中的配置项
 gzip压缩
 设置server端缓存
 引入socket.io
