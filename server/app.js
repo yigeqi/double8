@@ -32,14 +32,16 @@ app.use(router)
 
 //通过cookie中的token和redis验证用户身份
 const AuthHandler = (req,res,next) => {
-  // 为了允许跨域，server端：'Access-Control-Allow-Origin','some domain',Access-Control-Allow-Credentials',true
-  // client端： withCredentials:true
-  // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名,
-  // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，再设置req.header('Access-Control-Allow-Origin',req.headers.origin)
-  res.header('Access-Control-Allow-Origin',req.headers.origin)
-  res.header('Access-Control-Allow-Credentials',true)
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
-  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+  if (req.headers.origin && req.headers.origin!==`${config.appUrl}:${config.appPort}`) {
+    // 为了允许跨域，server端：'Access-Control-Allow-Origin','some domain',Access-Control-Allow-Credentials',true
+    // client端： withCredentials:true
+    // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名,
+    // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，再设置req.header('Access-Control-Allow-Origin',req.headers.origin)
+    res.header('Access-Control-Allow-Origin',req.headers.origin)
+    res.header('Access-Control-Allow-Credentials',true)
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+  }
   // 取代body-parser,因为这里req.body的undefined... next()里无法处理
   const ct = req.headers['content-type'] || ''
   const contentType = ct.split(';')[0]
@@ -64,8 +66,11 @@ const AuthHandler = (req,res,next) => {
   var token = ''
   const cookie = req.headers.cookie
   console.log(req.path,cookie)
-  if (!cookie) {
+  if (!cookie && req.path!=='/logout') {
     return res.status(401).send({success:false,message:'no cookie provided'})
+  }
+  if (!cookie && req.path==='/logout') {
+    return next()
   }
   const list = cookie.split(';')
   for (var i=0;i<list.length;i++) {
@@ -111,8 +116,9 @@ const AuthHandler = (req,res,next) => {
 }
 //防止CSRF以及请求提交的内容过大
 app.use((req,res,next)=>{
+  // origin is undefined with GET req when same-origin
   console.log(req.headers.origin)
-  if (config.allowSite.indexOf(req.headers.origin)===-1) {
+  if (req.headers.origin && req.headers.origin!==`${config.appUrl}:${config.appPort}` && config.allowSite.indexOf(req.headers.origin)===-1) {
     return res.status(401).send({success: false, message: 'This is a CSRF.'})
   }
   var received = 0

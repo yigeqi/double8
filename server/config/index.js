@@ -1,10 +1,11 @@
 module.exports={
   appPort: 8080,
+  appUrl: 'http://127.0.0.1',
   mongodb: 'mongodb://127.0.0.1:27017/double8',
   redisPort: 6379,
   redisDb: '127.0.0.1',
-  allowSite: ['http://127.0.0.1:3456','http://127.0.0.1:8080'],
+  allowSite: ['http://127.0.0.1:3456'],
   maxBytes: 5000,
   secret: 'hahaha',
-  expire: 8*60*60 // 秒为单位
+  expire: 8*60*60 // cookie和redis的过期时间，秒为单位
 }
