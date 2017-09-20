@@ -1,3 +1,5 @@
+目前开发环境下mongod db和redis db用的都是本地服务，运行项目前需要启动这两项服务：运行命令mongod和redis-server
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>

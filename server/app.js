@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require('path')
+const querystring = require('querystring');
 const bodyParser = require('body-parser')
  const jwt = require('jsonwebtoken')
 const methodOverride = require('method-override')
@@ -11,9 +12,16 @@ const config = require('./config')
 const users = require('./controllers/users.js')
 
 // 连接数据库
-mongoose.createConnection(config.mongodb+'?socketTimeoutMS=90000',{useMongoClient:true})
-.then(()=>{console.log('db connection ok')},(err)=>{console.log('db connection error,'+err.stack)})
-.catch(err=>console.error(err))
+// mongoose.createConnection(config.mongodb,{useMongoClient:true})
+// .then(()=>{console.log('db connection ok')},(err)=>{console.log('db connection error,'+err.stack)})
+// .catch(err=>console.error('db connection error,'+err))
+//上面这方法not work，没有真正连接成功，导致userModal的findOne等方法无法执行
+mongoose.connect(config.mongodb,{useMongoClient:true});
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  console.log('DB connection opened');
+});
 
 const app = express()
 app.use(methodOverride())
@@ -28,7 +36,7 @@ const AuthHandler = (req,res,next) => {
   // client端： withCredentials:true
   // 跨域发送Cookie要求Access-Control-Allow-Origin不允许使用通配符*，而且只能指定单一域名,
   // 如果需要设置多个域名，可以在判断req.headers.origin在允许域名内，再设置req.header('Access-Control-Allow-Origin',req.headers.origin)
-  res.header('Access-Control-Allow-Origin',allowSite)
+  res.header('Access-Control-Allow-Origin',req.headers.origin)
   res.header('Access-Control-Allow-Credentials',true)
   res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
   res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
@@ -103,7 +111,8 @@ const AuthHandler = (req,res,next) => {
 }
 //防止CSRF以及请求提交的内容过大
 app.use((req,res,next)=>{
-  if (req.headers.origin !== config.allowSite) {
+  console.log(req.headers.origin)
+  if (config.allowSite.indexOf(req.headers.origin)===-1) {
     return res.status(401).send({success: false, message: 'This is a CSRF.'})
   }
   var received = 0
@@ -143,7 +152,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
 })
 
-
-app.listen(process.env.PORT || 8080, () => {
-  console.log(`app is listening on port ${process.env.PORT || 8080}.`)
+app.listen(config.appPort, () => {
+  console.log(`app is listening on port ${config.appPort}.`)
 })

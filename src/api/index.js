@@ -35,13 +35,13 @@ instance.interceptors.response.use(rep=>{
 })
 
 export const api = {
-  login (username,password) {
+  login ({username,password}) {
     return instance.post(config.path.login, {username,password}).then(resp=>resp.data)
   },
   logout () {
     return instance.get(config.path.logout).then(resp=>resp)
   },
-  register (username,password) {
+  register ({username,password}) {
     return instance.post(config.path.register, {username,password}).then(resp=>resp.data)
   },
   justtest () {

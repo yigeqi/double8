@@ -2,20 +2,20 @@ import React, { Component } from 'react';
 import './style.less';
 import api from 'api'
 // import { connect } from 'react-redux'
-import {login } from 'actions/user'
+// import {login } from 'actions/user'
 
 class About extends Component {
   async test1 () {
-    // const resp = await api.login()
-    // console.log(resp)
-    await this.props.dispatch(login())
+    const resp = await api.login({username:'test1',password:'1'})
+    console.log(resp)
+    // await this.props.dispatch(login({username:'test1',password:'1'}))
   }
   async test2 () {
     const resp = await api.logout()
     console.log(resp)
   }
   async test3 () {
-    const resp = await api.register()
+    const resp = await api.register({username:'test2',password:'1'})
     console.log(resp)
   }
   async test4 () {

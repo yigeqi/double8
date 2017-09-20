@@ -16,7 +16,7 @@ const removeUserInfo = () => {
 
 export const login = ({username,password}) => {
   return async(dispatch, getState) => {
-    const resp = await api.login(username,password)
+    const resp = await api.login({username,password})
     dispatch(setUserInfo(resp))
     message.destroy()
     if (resp.success!==false) {
@@ -36,7 +36,7 @@ export const logout = () => {
 }
 export const register = ({username,password}) => {
   return async(dispatch, getState) => {
-    const resp = await api.register(username,password)
+    const resp = await api.register({username,password})
     message.destroy()
     if (resp.success!==false) {
       message.success('注册成功')

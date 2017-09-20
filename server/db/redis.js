@@ -1,6 +1,7 @@
+const config = require('../config')
 const redis = require('redis')
-// const redisClient = redis.createClient(6379,'192.168.27.99',{})---need set password
-const redisClient = redis.createClient(6379,'127.0.0.1',{})
+
+const redisClient = redis.createClient(config.redisPort,config.redisDb,{}) //redisDb不是localhost时need set password
 redisClient.on('error', (error) => {
   console.log('redis error.', error)
 })
