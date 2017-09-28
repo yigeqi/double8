@@ -16,7 +16,7 @@ class Routes extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      showChatRoom: false,
+      showChatRoom: !false,
       current: 'nav1'
     }
   }
@@ -73,7 +73,7 @@ class Routes extends Component {
           <div style={{position:'fixed',bottom:0,left:0}}>
             <Footer/>
           </div>
-          <div style={{position:'fixed',top:'10px',right:'10px'}}>
+          <div style={{position:'fixed',top:'70px',right:'10px'}}>
             {this.state.showChatRoom&&<ChatRoom/>}
           </div>
           <div style={{position:'fixed',bottom:0,right:'10px'}}>

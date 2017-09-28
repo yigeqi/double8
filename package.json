@@ -52,6 +52,7 @@
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
+    "socket.io": "^2.0.3",
     "style-loader": "0.18.2",
     "sw-precache-webpack-plugin": "0.11.4",
     "url-loader": "0.5.9",
@@ -65,8 +66,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "buildDev": "node scripts/build.js --dev",
-    "build": "node scripts/build.js",
+    "build": "node scripts/build.js --dev",
+    "buildProd": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "serverStart": "node server/app.js",
     "serverWatch": "nodemon server/app.js"

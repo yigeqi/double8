@@ -27,6 +27,21 @@ const app = express()
 app.use(methodOverride())
 app.use(express.static(path.resolve(__dirname, '..', 'build')))
 
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
+io.on('connection', function(socket){
+  console.log('a user of socketio connected.')
+  io.emit('chat message','user connected.')
+  socket.on('disconnect', function(){
+    console.log('user disconnected.')
+    io.emit('chat message','user disconnected.')
+  })
+  socket.on('chat message', function(msg){
+    console.log('receive msg:' + msg)
+    io.emit('chat message',msg)
+  })
+})
+
 const router = express.Router()
 app.use(router)
 //防止请求提交的内容过大
@@ -36,7 +51,6 @@ app.use(bodyParser.json({limit:config.maxBodySize}))
 //防止CSRF
 app.use((req,res,next)=>{
   // origin is undefined with GET req when same-origin
-  console.log(req.headers.origin)
   if (req.headers.origin && req.headers.origin!==`${config.appUrl}:${config.appPort}` && config.allowSite.indexOf(req.headers.origin)===-1) {
     return res.status(401).send({success: false, message: 'This is a CSRF.'})
   } else {
@@ -120,6 +134,6 @@ app.get('/justtest', (req,res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
 })
-app.listen(config.appPort, () => {
+http.listen(config.appPort, () => {
   console.log(`app is listening on port ${config.appPort}.`)
 })

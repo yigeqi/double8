@@ -11,12 +11,14 @@
 //logout时若没有cookie也不应401
 //引入body-parser而不影响req.on('data')--body-parser中其实已经有对body大小的限制了
 //把react,react-dom,redux,react-redux,redux-thunk抽取成vendor.js
+eslint赶紧弄好
 加入BundleAnalyzerPlugin
 图片上传服务
 contentType是'application/xml'或'multipart/form-data'时,req.body的处理
 要不要保存密码在localStorage中，实现自动登录，不安全，怎样安全的实现自动登录？
 gzip压缩
 设置server端缓存
-引入socket.io
+//引入socket.io
+在redis中维护一个在线用户列表，登录成功即为在线用户，并显示当前的所有在线用户
 从nodejs向别的服务器发出请求
 前端发送请求后到接收响应前的loading显示
