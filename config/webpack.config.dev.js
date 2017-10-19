@@ -11,7 +11,7 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
-
+const HappyPack = require('happypack');
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
 const publicPath = '/';
@@ -154,24 +154,27 @@ module.exports = {
           {
             test: /\.(js|jsx)$/,
             include: paths.appSrc,
-            loader: require.resolve('babel-loader'),
-            options: {
+            exclude: path.resolve(__dirname, '../node_modules'),
+            use: ['happypack/loader?id=babel'],
+            // loader: require.resolve('babel-loader'),
+            // options: {
               
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
-              cacheDirectory: true,
-            },
+              // cacheDirectory: true,
+            // },
           },
           {
             test: /\.less$/,
-            use: [{
-                loader: "style-loader" // creates style nodes from JS strings
-            }, {
-                loader: "css-loader" // translates CSS into CommonJS
-            }, {
-                loader: "less-loader" // compiles Less to CSS
-            }]
+            use: ['happypack/loader?id=less']
+            // use: [{
+            //     loader: "style-loader" // creates style nodes from JS strings
+            // }, {
+            //     loader: "css-loader" // translates CSS into CommonJS
+            // }, {
+            //     loader: "less-loader" // compiles Less to CSS
+            // }]
           },
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.
@@ -233,6 +236,14 @@ module.exports = {
     ],
   },
   plugins: [
+    new HappyPack({
+      id: 'babel',
+      loaders: ['babel-loader?cacheDirectory']
+    }),
+    new HappyPack({
+      id: 'less',
+      loaders: ['style-loader', 'css-loader', 'less-loader']
+    }),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">

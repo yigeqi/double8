@@ -12,7 +12,7 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
-
+const HappyPack = require('happypack');
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
@@ -82,7 +82,7 @@ module.exports = {
     // We placed these paths second because we want `node_modules` to "win"
     // if there are any conflicts. This matches Node resolution mechanism.
     // https://github.com/facebookincubator/create-react-app/issues/253
-    modules: ['node_modules', paths.appNodeModules].concat(
+    modules: [path.resolve(__dirname,'../node_modules'), paths.appNodeModules].concat(
       // It is guaranteed to exist because we tweak it in `env.js`
       process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
     ),
@@ -159,21 +159,24 @@ module.exports = {
           {
             test: /\.(js|jsx)$/,
             include: paths.appSrc,
-            loader: require.resolve('babel-loader'),
-            options: {
+            exclude: path.resolve(__dirname, '../node_modules'),
+            use: ['happypack/loader?id=babel'],
+            // loader: require.resolve('babel-loader'),
+            // options: {
               
-              compact: true,
-            },
+              // compact: true,
+            // },
           },
           {
             test: /\.less$/,
-            use: [{
-                loader: "style-loader" // creates style nodes from JS strings
-            }, {
-                loader: "css-loader" // translates CSS into CommonJS
-            }, {
-                loader: "less-loader" // compiles Less to CSS
-            }]
+            use: ['happypack/loader?id=less']
+            // use: [{
+            //     loader: "style-loader" // creates style nodes from JS strings
+            // }, {
+            //     loader: "css-loader" // translates CSS into CommonJS
+            // }, {
+            //     loader: "less-loader" // compiles Less to CSS
+            // }]
           },
           // The notation here is somewhat confusing.
           // "postcss" loader applies autoprefixer to our CSS.
@@ -251,6 +254,14 @@ module.exports = {
     ],
   },
   plugins: [
+    new HappyPack({
+       id: 'babel',
+       loaders: ['babel-loader?compact']
+    }),
+    new HappyPack({
+       id: 'less',
+       loaders: ['style-loader', 'css-loader', 'less-loader']
+    }),
     new webpack.optimize.CommonsChunkPlugin({name:'vendors'}),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
