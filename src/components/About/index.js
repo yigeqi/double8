@@ -26,10 +26,10 @@ class About extends Component {
     return (
       <div>
         <h2>About Component</h2>
-        <h2 onClick={e=>this.test1()}> login</h2>
-        <h2 onClick={e=>this.test2()}> logout</h2>
-        <h2 onClick={e=>this.test3()}> register</h2>
-        <h2 onClick={e=>this.test4()}> justtest</h2>
+        <h2 onClick={()=>this.test1()}> login</h2>
+        <h2 onClick={()=>this.test2()}> logout</h2>
+        <h2 onClick={()=>this.test3()}> register</h2>
+        <h2 onClick={()=>this.test4()}> justtest</h2>
         <div>
           <div>
 

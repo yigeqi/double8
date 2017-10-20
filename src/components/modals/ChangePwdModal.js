@@ -9,7 +9,7 @@ class ChangePwdModal extends Component {
       confirmLoading: false
     }
   }
-  handleOk (e) {
+  handleOk () {
     this.setState({
       confirmLoading: true,
     })
@@ -28,9 +28,9 @@ class ChangePwdModal extends Component {
       <Modal 
         title='修改密码' 
         visible={this.props.currentModal==='ChangePwdModal'}
-        onOk={e=>this.handleOk()}
+        onOk={()=>this.handleOk()}
         confirmLoading={this.state.confirmLoading}
-        onCancel={e=>this.closeModal()}
+        onCancel={()=>this.closeModal()}
       >
         <div>.......</div>
       </Modal>

@@ -34,7 +34,7 @@ class ChatRoom extends Component {
             })}
           </ul>
           <input type='text' value={this.state.msg} onChange={e=>this.handleValue(e.target.value)}/>
-          <input type='button' value='send' onClick={e=>this.sendMsg()}/>
+          <input type='button' value='send' onClick={()=>this.sendMsg()}/>
         </div>
       </div>
     );

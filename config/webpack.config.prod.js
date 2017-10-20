@@ -13,6 +13,8 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const HappyPack = require('happypack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const isAnalyze = process.argv.includes('--analyze') || process.argv.includes('--analyse');
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
@@ -254,6 +256,7 @@ module.exports = {
     ],
   },
   plugins: [
+    ...isAnalyze ? [new BundleAnalyzerPlugin()] : [],
     new HappyPack({
        id: 'babel',
        loaders: ['babel-loader?compact']

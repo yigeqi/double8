@@ -68,7 +68,7 @@ class LoginModal extends Component {
       <Modal 
         title='登录' 
         visible={this.props.currentModal==='LoginModal'}
-        onCancel={e=>this.props.dispatch(showModal(''))}
+        onCancel={()=>this.props.dispatch(showModal(''))}
         footer={null}
       >
         <MyForm ref={form=>this.form=form} handleSubmit={this.handleSubmit.bind(this)} confirmLoading={this.state.confirmLoading}/>

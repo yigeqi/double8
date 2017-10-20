@@ -77,7 +77,7 @@ class Routes extends Component {
             {this.state.showChatRoom&&<ChatRoom/>}
           </div>
           <div style={{position:'fixed',bottom:0,right:'10px'}}>
-            <Icon type="team" onClick={e=>this.setState({showChatRoom:!this.state.showChatRoom})}/>
+            <Icon type="team" onClick={()=>this.setState({showChatRoom:!this.state.showChatRoom})}/>
           </div>
         </div>
       </Router>

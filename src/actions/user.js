@@ -15,7 +15,7 @@ const removeUserInfo = () => {
 }
 
 export const login = ({username,password}) => {
-  return async(dispatch, getState) => {
+  return async(dispatch) => {
     const resp = await api.login({username,password})
     dispatch(setUserInfo(resp))
     message.destroy()
@@ -35,7 +35,7 @@ export const logout = () => {
   }
 }
 export const register = ({username,password}) => {
-  return async(dispatch, getState) => {
+  return async() => {
     const resp = await api.register({username,password})
     message.destroy()
     if (resp.success!==false) {

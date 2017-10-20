@@ -13,6 +13,7 @@ const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const HappyPack = require('happypack');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const isAnalyze = process.argv.includes('--analyze') || process.argv.includes('--analyse');
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
 const publicPath = '/';
@@ -120,6 +121,7 @@ module.exports = {
 
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
+      //eslint-loader要配合babel-eslint一起使用，使eslint能识别es6语法，使用eslint-plugin-react(React specific linting rules for ESLint)
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
@@ -237,7 +239,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new BundleAnalyzerPlugin(),
+    ...isAnalyze ? [new BundleAnalyzerPlugin()] : [],
     new HappyPack({
       id: 'babel',
       loaders: ['babel-loader?cacheDirectory']
