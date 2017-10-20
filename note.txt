@@ -12,7 +12,7 @@
 //引入body-parser而不影响req.on('data')--body-parser中其实已经有对body大小的限制了
 //把react,react-dom,redux,react-redux,redux-thunk抽取成vendor.js
 eslint赶紧弄好
-加入BundleAnalyzerPlugin
+//加入BundleAnalyzerPlugin
 图片上传服务
 contentType是'application/xml'或'multipart/form-data'时,req.body的处理
 要不要保存密码在localStorage中，实现自动登录，不安全，怎样安全的实现自动登录？
